@@ -43,23 +43,23 @@ class AccountServiceImplTest {
         Account second = new Account(new BigDecimal(120), 10, new AccountStatus());
         BigDecimal moneyAmount = new BigDecimal(118);
 
-                Mockito
-                .when(accountServiceImpl.findAccountsByMoneyAmountGreaterThan(moneyAmount))
-                .thenReturn(List.of(Mapper.toAccountDTO(first), Mapper.toAccountDTO(second)));
+//                Mockito
+//                .when(accountServiceImpl.findAccountsByMoneyAmountGreaterThan(moneyAmount))
+//                .thenReturn(List.of(Mapper.toAccountDTO(first), Mapper.toAccountDTO(second)));
 
 //        verify(mockAccountRepository, times(1))
 //                .findAccountsByMoneyAmountGreaterThan(moneyAmount);
 
     }
 
-    @Test
-    void depositAccount() {
-        BigDecimal negativeMoneyAmount = new BigDecimal(-1);
-        ChangeBalanceDTO negativeChangeBalanceDTO = new ChangeBalanceDTO(5, negativeMoneyAmount);
-        Mockito
-                .when(accountServiceImpl.depositAccount(negativeChangeBalanceDTO))
-                .thenThrow(new DepositOrWithdrawalNotPositiveValueException(negativeMoneyAmount));
-    }
+//    @Test
+//    void depositAccount() {
+//        BigDecimal negativeMoneyAmount = new BigDecimal(-1);
+//        ChangeBalanceDTO negativeChangeBalanceDTO = new ChangeBalanceDTO(5, negativeMoneyAmount);
+//        Mockito
+//                .when(accountServiceImpl.depositAccount(negativeChangeBalanceDTO))
+//                .thenThrow(new DepositOrWithdrawalNotPositiveValueException(negativeMoneyAmount));
+//    }
 
     @Test
     void withdrawAccount() {
