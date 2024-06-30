@@ -83,7 +83,9 @@ public class AccountServiceImpl implements AccountService {
         AccountStatus status = accountStatusRepository.findByCode(AccountStatus.CODE.CLOSED);
         accountToClose.setStatus(status);
 
-        return Mapper.toAccountDTO(save(accountToClose));
+        return Mapper.toAccountDTO(accountRepository.save(accountToClose));
+
+//        return Mapper.toAccountDTO(save(accountToClose));
     }
 
     private void checkMoneyAmountToWithdraw(ChangeBalanceDTO changeBalanceDTO, Account accountToWithdraw) {

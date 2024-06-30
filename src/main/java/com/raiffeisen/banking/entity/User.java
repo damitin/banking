@@ -28,6 +28,10 @@ public class User {
     @JoinColumn(name = "user_id")
     private Set<Account> accounts;
 
+    public void setLogin(String login) {
+        this.login = login;
+    }
+
     public Set<Account> getAccounts() {
         return accounts;
     }

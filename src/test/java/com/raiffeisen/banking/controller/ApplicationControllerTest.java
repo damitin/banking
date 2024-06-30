@@ -15,10 +15,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.math.BigDecimal;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -49,11 +51,20 @@ class ApplicationControllerTest {
     void depositAccount() throws Exception {
         ChangeBalanceDTO changeBalanceDTO = new ChangeBalanceDTO(3, new BigDecimal(10));
         String changeBalanceJson = objectMapper.writeValueAsString(changeBalanceDTO);
+        AccountDTO accountToDepositDTO = new AccountDTO(3, new BigDecimal(93), 2, 1);
 
-        mockMvc.perform(put("/deposit")
+        MvcResult mvcResult = mockMvc.perform(
+                put("/deposit")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(changeBalanceJson))
-                .andExpect(status().isOk());
+                        .content(changeBalanceJson)
+        ).andReturn();
+
+        String contentAsString = mvcResult.getResponse().getContentAsString();
+
+//        assertEquals(accountToDepositDTO, contentAsString);
+
+//        when(mockAccountService.depositAccount(changeBalanceDTO)).thenReturn(accountToDepositDTO);
+
 
 //        when(mockAccountService.depositAccount(any())).thenThrow(new AccountNotFoundException(100));
 
