@@ -53,7 +53,6 @@ class ApplicationControllerUnitTest {
     Integer nonExistingAccountId = 999;
 
     BigDecimal positiveMoneyAmount = new BigDecimal(100.00);
-    BigDecimal negativeMoneyAmount = new BigDecimal(-100.00);
 
     BigDecimal positiveMoneyDelta = new BigDecimal(10.00);
     BigDecimal negativeMoneyDelta = new BigDecimal(-10.00);
@@ -69,10 +68,6 @@ class ApplicationControllerUnitTest {
 
     AccountStatus openStatus = new AccountStatus();
     AccountStatus closedStatus = new AccountStatus();
-
-
-    @Autowired
-    private MockMvc mockMvc;
 
     @BeforeEach
     void setUp() {
@@ -107,7 +102,6 @@ class ApplicationControllerUnitTest {
     }
 
     @Nested
-
     class CloseAccountTests {
         @Test
         void closeAccount_Success() {
