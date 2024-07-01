@@ -17,13 +17,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
 @WebMvcTest(controllers = ApplicationController.class)
@@ -54,6 +57,7 @@ class ApplicationControllerUnitTest {
 
     BigDecimal positiveMoneyDelta = new BigDecimal(10.00);
     BigDecimal negativeMoneyDelta = new BigDecimal(-10.00);
+    BigDecimal veryBigMoneyDelta = new BigDecimal(1000.00);
 
     ChangeBalanceDTO positiveExistingAccountChangeBalanceDTO = new ChangeBalanceDTO(existingOpenAccountId, positiveMoneyDelta);
     ChangeBalanceDTO positiveClosedAccountChangeBalanceDTO = new ChangeBalanceDTO(existingClosedAccountId, positiveMoneyDelta);
@@ -187,6 +191,143 @@ class ApplicationControllerUnitTest {
 
             assertThrows(AccountAlreadyClosedException.class, () -> applicationController.depositAccount(positiveClosedAccountChangeBalanceDTO));
             verify(mockAccountService, times(1)).depositAccount(positiveClosedAccountChangeBalanceDTO);
+        }
+    }
+
+    @Nested
+    class WithdrawAccountTests {
+        @Test
+        void withdrawAccount_Success() {
+            AccountDTO expectedAccountDTOAfterWithdraw = new AccountDTO(existingOpenAccountId, positiveMoneyAmount.subtract(positiveMoneyDelta), existingUserId, accountStatusOpenId);
+
+            when(mockAccountService.withdrawAccount(positiveExistingAccountChangeBalanceDTO)).thenReturn(expectedAccountDTOAfterWithdraw);
+
+            assertEquals(expectedAccountDTOAfterWithdraw, applicationController.withdrawalAccount(positiveExistingAccountChangeBalanceDTO));
+            verify(mockAccountService, times(1)).withdrawAccount(positiveExistingAccountChangeBalanceDTO);
+        }
+
+        @Test
+        void withdrawAccount_Fail_DepositOrWithdrawalNotPositiveValueException() {
+
+            when(mockAccountService.withdrawAccount(negativeExistingAccountChangeBalanceDTO)).thenThrow(new DepositOrWithdrawalNotPositiveValueException(negativeMoneyDelta));
+
+            assertThrows(DepositOrWithdrawalNotPositiveValueException.class, () -> applicationController.withdrawalAccount(negativeExistingAccountChangeBalanceDTO));
+            verify(mockAccountService, times(1)).withdrawAccount(negativeExistingAccountChangeBalanceDTO);
+        }
+
+        @Test
+        void withdrawAccount_Fail_AccountNotFoundException() {
+
+            when(mockAccountService.withdrawAccount(positiveNonExistingAccountChangeBalanceDTO)).thenThrow(new AccountNotFoundException(nonExistingAccountId));
+
+            assertThrows(AccountNotFoundException.class, () -> applicationController.withdrawalAccount(positiveNonExistingAccountChangeBalanceDTO));
+            verify(mockAccountService, times(1)).withdrawAccount(positiveNonExistingAccountChangeBalanceDTO);
+        }
+
+        @Test
+        void withdrawAccount_Fail_AccountAlreadyClosedException() {
+
+            when(mockAccountService.withdrawAccount(positiveClosedAccountChangeBalanceDTO)).thenThrow(new AccountAlreadyClosedException(existingClosedAccountId));
+
+            assertThrows(AccountAlreadyClosedException.class, () -> applicationController.withdrawalAccount(positiveClosedAccountChangeBalanceDTO));
+            verify(mockAccountService, times(1)).withdrawAccount(positiveClosedAccountChangeBalanceDTO);
+        }
+
+        @Test
+        void withdrawAccount_Fail_NotEnoughMoneyException() {
+
+            when(mockAccountService.withdrawAccount(positiveExistingAccountChangeBalanceDTO)).thenThrow(new NotEnoughMoneyException(veryBigMoneyDelta, positiveMoneyAmount));
+
+            assertThrows(NotEnoughMoneyException.class, () -> applicationController.withdrawalAccount(positiveExistingAccountChangeBalanceDTO));
+            verify(mockAccountService, times(1)).withdrawAccount(positiveExistingAccountChangeBalanceDTO);
+        }
+    }
+
+    @Nested
+    class GetAccountInfoTests {
+
+        @Test
+        void getAccountInfo_Success() {
+            AccountDTO expectedAccountDTO = new AccountDTO(existingOpenAccountId, positiveMoneyAmount, existingUserId, accountStatusOpenId);
+
+            when(mockUserService.getAccountInfo(existingUserId, existingOpenAccountId)).thenReturn(expectedAccountDTO);
+
+            assertEquals(expectedAccountDTO, applicationController.getAccountInfo(existingUserId, existingOpenAccountId));
+            verify(mockUserService, times(1)).getAccountInfo(existingUserId, existingOpenAccountId);
+        }
+
+        @Test
+        void getAccountInfo_UserNotFoundException() {
+
+            when(mockUserService.getAccountInfo(nonExistingUserId, existingOpenAccountId)).thenThrow(new UserNotFoundException(nonExistingUserId));
+
+            assertThrows(UserNotFoundException.class, () -> applicationController.getAccountInfo(nonExistingUserId, existingOpenAccountId));
+            verify(mockUserService, times(1)).getAccountInfo(nonExistingUserId, existingOpenAccountId);
+        }
+
+        @Test
+        void getAccountInfo_AccountNotFoundException() {
+
+            when(mockUserService.getAccountInfo(existingUserId, nonExistingAccountId)).thenThrow(new AccountNotFoundException(nonExistingAccountId));
+
+            assertThrows(AccountNotFoundException.class, () -> applicationController.getAccountInfo(existingUserId, nonExistingAccountId));
+            verify(mockUserService, times(1)).getAccountInfo(existingUserId, nonExistingAccountId);
+        }
+    }
+
+    @Nested
+    class FindAllAccountsOfUser {
+        String loginExists = "loginExists";
+        String loginNotExists = "loginNotExists";
+        String loginEmpty = "loginEmpty";
+
+        @Test
+        void findAllAccountsOfUser_Success_LoginExists() {
+            AccountDTO expectedAccountDTO = new AccountDTO(existingOpenAccountId, positiveMoneyAmount, existingUserId, accountStatusOpenId);
+
+            when(mockUserService.getAccountInfoByParams(loginExists)).thenReturn(List.of(expectedAccountDTO));
+
+            assertEquals(List.of(expectedAccountDTO), applicationController.findAllAccountsOfUser(loginExists));
+            verify(mockUserService, times(1)).getAccountInfoByParams(loginExists);
+        }
+
+        @Test
+        void findAllAccountsOfUser_Success_LoginEmpty() {
+
+            when(mockUserService.getAccountInfoByParams(loginEmpty)).thenReturn(List.of());
+
+            assertEquals(List.of(), applicationController.findAllAccountsOfUser(loginEmpty));
+            verify(mockUserService, times(1)).getAccountInfoByParams(loginEmpty);
+        }
+
+        @Test
+        void findAllAccountsOfUser_Success_LoginNotExists() {
+            when(mockUserService.getAccountInfoByParams(loginNotExists)).thenReturn(List.of());
+
+            assertEquals(List.of(), applicationController.findAllAccountsOfUser(loginNotExists));
+            verify(mockUserService, times(1)).getAccountInfoByParams(loginNotExists);
+        }
+    }
+
+    @Nested
+    class FindAccountsWithMoneyAmountGreaterThan {
+
+        @Test
+        void findAccountsWithMoneyAmountGreaterThan_Success_AccountsExist() {
+            AccountDTO expectedAccountDTO = new AccountDTO(existingOpenAccountId, positiveMoneyAmount, existingUserId, accountStatusOpenId);
+
+            when(mockAccountService.findAccountsByMoneyAmountGreaterThan(positiveMoneyDelta)).thenReturn(List.of(expectedAccountDTO));
+
+            assertEquals(List.of(expectedAccountDTO), applicationController.findAccountsWithMoneyAmountGreaterThan(positiveMoneyDelta));
+            verify(mockAccountService, times(1)).findAccountsByMoneyAmountGreaterThan(positiveMoneyDelta);
+        }
+
+        @Test
+        void findAccountsWithMoneyAmountGreaterThan_Success_AccountsNotExist() {
+            when(mockAccountService.findAccountsByMoneyAmountGreaterThan(veryBigMoneyDelta)).thenReturn(List.of());
+
+            assertEquals(List.of(), applicationController.findAccountsWithMoneyAmountGreaterThan(veryBigMoneyDelta));
+            verify(mockAccountService, times(1)).findAccountsByMoneyAmountGreaterThan(veryBigMoneyDelta);
         }
     }
 }
