@@ -1,14 +1,17 @@
-package com.raiffeisen.banking.model;
+package com.raiffeisen.banking.event;
 
 import java.math.BigDecimal;
 
-public class AccountDTO {
+public class OpenAccountEvent {
     private int id;
     private BigDecimal moneyAmount;
     private int userId;
     private int accountStatus;
 
-    public AccountDTO(int id, BigDecimal moneyAmount, int userId, int accountStatus) {
+    public OpenAccountEvent() {
+    }
+
+    public OpenAccountEvent(int id, BigDecimal moneyAmount, int userId, int accountStatus) {
         this.id = id;
         this.moneyAmount = moneyAmount;
         this.userId = userId;
@@ -45,15 +48,5 @@ public class AccountDTO {
 
     public void setAccountStatus(int accountStatus) {
         this.accountStatus = accountStatus;
-    }
-
-    @Override
-    public String toString() {
-        return "AccountDTO{" +
-                "id=" + id +
-                ", moneyAmount=" + moneyAmount +
-                ", userId=" + userId +
-                ", accountStatus=" + accountStatus +
-                '}';
     }
 }
