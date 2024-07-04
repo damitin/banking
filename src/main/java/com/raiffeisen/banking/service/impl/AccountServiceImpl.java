@@ -6,6 +6,7 @@ import com.raiffeisen.banking.exception.AccountAlreadyClosedException;
 import com.raiffeisen.banking.exception.AccountCanNotBeClosedException;
 import com.raiffeisen.banking.exception.AccountNotFoundException;
 import com.raiffeisen.banking.exception.NotEnoughMoneyException;
+import com.raiffeisen.banking.kafka.KafkaProducer;
 import com.raiffeisen.banking.model.AccountDTO;
 import com.raiffeisen.banking.model.ChangeBalanceDTO;
 import com.raiffeisen.banking.model.NewAccountDTO;
@@ -23,10 +24,12 @@ import java.util.List;
 public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
     private final AccountStatusRepository accountStatusRepository;
+    private final KafkaProducer kafkaProducer;
 
-    public AccountServiceImpl(AccountRepository accountRepository, AccountStatusRepository accountStatusRepository) {
+    public AccountServiceImpl(AccountRepository accountRepository, AccountStatusRepository accountStatusRepository, KafkaProducer kafkaProducer) {
         this.accountRepository = accountRepository;
         this.accountStatusRepository = accountStatusRepository;
+        this.kafkaProducer = kafkaProducer;
     }
 
     @Override
@@ -47,8 +50,12 @@ public class AccountServiceImpl implements AccountService {
         Account accountToDeposit = getAccount(changeBalanceDTO.getAccountId());
         if (accountToDeposit.isClosed()) throw new AccountAlreadyClosedException(changeBalanceDTO.getAccountId());
         accountToDeposit.increaseMoneyAmount(changeBalanceDTO.getMoneyDelta());
+        accountToDeposit = accountRepository.saveAndFlush(accountToDeposit);
 
-        return Mapper.toAccountDTO(accountToDeposit);
+        AccountDTO accountToDepositDTO = Mapper.toAccountDTO(accountToDeposit);
+
+        kafkaProducer.send("deposit-account-topic", accountToDepositDTO);
+        return accountToDepositDTO;
     }
 
     @Override
@@ -61,8 +68,11 @@ public class AccountServiceImpl implements AccountService {
         checkMoneyAmountToWithdraw(changeBalanceDTO, accountToWithdraw);
 
         accountToWithdraw.decreaseMoneyAmount(changeBalanceDTO.getMoneyDelta());
+        accountToWithdraw = accountRepository.saveAndFlush(accountToWithdraw);
+        AccountDTO accountToWithdrawDTO = Mapper.toAccountDTO(accountToWithdraw);
 
-        return Mapper.toAccountDTO(accountToWithdraw);
+        kafkaProducer.send("withdraw-account-topic", accountToWithdrawDTO);
+        return accountToWithdrawDTO;
     }
 
     @Override
@@ -82,10 +92,10 @@ public class AccountServiceImpl implements AccountService {
 
         AccountStatus status = accountStatusRepository.findByCode(AccountStatus.CODE.CLOSED);
         accountToClose.setStatus(status);
+        AccountDTO closedAccountDTO = Mapper.toAccountDTO(accountRepository.save(accountToClose));
 
-        return Mapper.toAccountDTO(accountRepository.save(accountToClose));
-
-//        return Mapper.toAccountDTO(save(accountToClose));
+        kafkaProducer.send("close-account-topic", closedAccountDTO);
+        return closedAccountDTO;
     }
 
     private void checkMoneyAmountToWithdraw(ChangeBalanceDTO changeBalanceDTO, Account accountToWithdraw) {

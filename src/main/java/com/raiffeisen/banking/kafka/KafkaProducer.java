@@ -1,6 +1,6 @@
 package com.raiffeisen.banking.kafka;
 
-import com.raiffeisen.banking.kafka.event.KafkaEvent;
+import com.raiffeisen.banking.model.AccountDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,11 +15,11 @@ public class KafkaProducer {
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaProducer.class);
 
     @Autowired
-    private KafkaTemplate<String, KafkaEvent> kafkaTemplate;
+    private KafkaTemplate<String, AccountDTO> kafkaTemplate;
 
-    public void send(String topic, KafkaEvent kafkaEvent) {
-        LOGGER.info("Trying to send payload='{}' to topic='{}'", kafkaEvent, topic);
-        CompletableFuture<SendResult<String, KafkaEvent>> future = kafkaTemplate.send(topic, kafkaEvent);
+    public void send(String topic, AccountDTO accountDTO) {
+        LOGGER.info("Trying to send payload='{}' to topic='{}'", accountDTO, topic);
+        CompletableFuture<SendResult<String, AccountDTO>> future = kafkaTemplate.send(topic, accountDTO);
         future.whenComplete((result, exception) -> {
             if (exception != null) {
                 logFailure(exception);
