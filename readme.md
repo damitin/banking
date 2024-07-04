@@ -64,22 +64,56 @@ _Да_
 
 _Да_ 
 
-## Запуск приложения в Docker
-В терминале в корне проекта выполнить:
+## Сборка приложения
+
+### Развернуть Postgres в контейнере Docker
+```
+docker run -d --name postgres -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres
+```
+### Развернуть Kafka в контейнере Docker
+```
+docker run -p 9092:9092 -d --name kafka-server --hostname kafka-server \
+--network app-tier \
+-e KAFKA_CFG_NODE_ID=0 \
+-e KAFKA_CFG_PROCESS_ROLES=controller,broker \
+-e KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093 \
+-e KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT \
+-e KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka-server:9093 \
+-e KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER \
+bitnami/kafka:latest
+```
+Дополнительно на локальной машине в файл /etc/hosts добавить запись (будет исправлено)
+```
+127.0.0.1 kafka-server
+```
+### Сборка приложения
+Теперь можно запустить сборку приложения. В корне проекта выполнить
 ```
 ./mvnw clean package
+```
+
+## Докеризация приложения
+В корне проекта выполнить
+```
 docker-compose up -d
 ```
+При повторной попытке поднять в докере, нужно удалить контейнер "banking".
+
+## Тестирование
 При повторной попытке пройти тесты нужно:
-- дропнуть БД, т. к. прокрутились ID;
+- дропнуть БД, т. к. прокрутились ID после интеграционных тестов com/raiffeisen/banking/controller/ApplicationControllerIntegrationTest.java.
 - дропнуть информацию о миграциях, чтобы они снова отработали.
 ```
 src/main/resources/sql/drop_all.sql
 ```
-При повторной попытке докеризировать нужно удалить в докере image "docker-spring-boot-postgres:latest"
-
 Для проверки можно отправить API запрос для получения всех счетов пользователей, в логине которых содержится строка "a" (пользоват):
 ```
 localhost:8080/users?login=a
 ```
-Выдаст пустой массив, т. к. БД теперь зачищается в tearDown() методе интеграционных тестов.
+Выдаст пустой массив, т. к. БД зачищается в tearDown() методе интеграционных тестов com/raiffeisen/banking/controller/ApplicationControllerIntegrationTest.java.
+
+Наполнение базы тестовыми данными можно сделать при помощи отключенных скриптов миграции Flyway
+
+src/main/resources/db/migration/fill/_V20__fill_table_banking.user.sql
+
+src/main/resources/db/migration/fill/_V21__fill_table_banking.account.sql
