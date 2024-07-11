@@ -118,3 +118,8 @@ localhost:8080/users?login=a
 src/main/resources/db/migration/fill/_V20__fill_table_banking.user.sql
 src/main/resources/db/migration/fill/_V21__fill_table_banking.account.sql
 ```
+
+Swagger URL:
+```
+http://localhost:8080/swagger-ui/index.html#
+```

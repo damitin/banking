@@ -5,6 +5,7 @@ import com.raiffeisen.banking.model.ChangeBalanceDTO;
 import com.raiffeisen.banking.model.NewAccountDTO;
 import com.raiffeisen.banking.service.AccountService;
 import com.raiffeisen.banking.service.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import java.math.BigDecimal;
 import java.util.List;
 
+@Tag(name = "All methods")
 @RestController
 public class ApplicationController {
     private final UserService userService;
