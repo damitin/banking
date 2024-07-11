@@ -7,6 +7,7 @@ import com.raiffeisen.banking.exception.UserNotFoundException;
 import com.raiffeisen.banking.kafka.KafkaProducer;
 import com.raiffeisen.banking.model.AccountDTO;
 import com.raiffeisen.banking.model.NewAccountDTO;
+import com.raiffeisen.banking.model.UserSearchFilter;
 import com.raiffeisen.banking.repository.UserRepository;
 import com.raiffeisen.banking.service.AccountService;
 import com.raiffeisen.banking.service.UserService;
@@ -42,9 +43,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<AccountDTO> getAccountInfoByParams(String login) {
+    public List<AccountDTO> getAccountInfoByParams(UserSearchFilter userSearchFilter) {
         return userRepository
-                .findAllByLoginContainsIgnoreCase(login)
+                .findUsersByFilter(userSearchFilter.getId(), userSearchFilter.getLogin())
                 .stream()
                 .map(User::getAccounts)
                 .flatMap(Collection::stream)

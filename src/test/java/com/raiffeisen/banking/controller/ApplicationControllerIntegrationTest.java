@@ -7,6 +7,7 @@ import com.raiffeisen.banking.entity.User;
 import com.raiffeisen.banking.exception.*;
 import com.raiffeisen.banking.model.ChangeBalanceDTO;
 import com.raiffeisen.banking.model.NewAccountDTO;
+import com.raiffeisen.banking.model.UserSearchFilter;
 import com.raiffeisen.banking.repository.AccountRepository;
 import com.raiffeisen.banking.repository.AccountStatusRepository;
 import com.raiffeisen.banking.repository.UserRepository;
@@ -55,8 +56,8 @@ class ApplicationControllerIntegrationTest {
 
     @AfterAll
     void tearDown() {
-        accountRepository.deleteAll();
-        userRepository.deleteAll();
+//        accountRepository.deleteAll();
+//        userRepository.deleteAll();
     }
 
     @Nested
@@ -414,33 +415,45 @@ class ApplicationControllerIntegrationTest {
     class FindAllAccountsOfUser {
         String loginExists = "aA";
         String loginNotExists = "aAQWE";
+        String loginEmpty = "";
+        UserSearchFilter idNullAndLoginExists = new UserSearchFilter(null, loginExists);
+        UserSearchFilter idNullAndLoginNotExists = new UserSearchFilter(null, loginNotExists);
+        UserSearchFilter idNullAndLoginEmpty = new UserSearchFilter(null, loginEmpty);
 
         @Test
         @Order(1)
         void findAllAccountsOfUser_Success_LoginExists() throws Exception {
+            String idNullAndLoginExistJSON = objectMapper.writeValueAsString(idNullAndLoginExists);
+
             ResultActions resultActions = mockMvc.perform(
-                    get("/users")
-                            .param("login", loginExists)
+                    post("/users")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(idNullAndLoginExistJSON)
             );
 
             resultActions.andExpect(status().isOk());
             String contentAsString = resultActions.andReturn().getResponse().getContentAsString();
             String expectedString =
                     "[" +
-                    "{\"id\":1,\"moneyAmount\":5,\"userId\":1,\"accountStatus\":1}" +
-                    ",{\"id\":2,\"moneyAmount\":-100,\"userId\":1,\"accountStatus\":1}" +
-                    ",{\"id\":3,\"moneyAmount\":110,\"userId\":1,\"accountStatus\":2}" +
-                    ",{\"id\":4,\"moneyAmount\":90,\"userId\":1,\"accountStatus\":1}" +
-                    ",{\"id\":5,\"moneyAmount\":100,\"userId\":1,\"accountStatus\":1}" +
-                    "]";
+                            "{\"id\":1,\"moneyAmount\":5,\"userId\":1,\"accountStatus\":1}" +
+                            ",{\"id\":2,\"moneyAmount\":-100,\"userId\":1,\"accountStatus\":1}" +
+                            ",{\"id\":3,\"moneyAmount\":110,\"userId\":1,\"accountStatus\":2}" +
+                            ",{\"id\":4,\"moneyAmount\":90,\"userId\":1,\"accountStatus\":1}" +
+                            ",{\"id\":5,\"moneyAmount\":100,\"userId\":1,\"accountStatus\":1}" +
+                            "]";
             assertEquals(expectedString, contentAsString);
         }
 
         @Test
         @Order(2)
         void findAllAccountsOfUser_Success_LoginEmpty() throws Exception {
+            String idNullAndLoginEmptyJSON = objectMapper.writeValueAsString(idNullAndLoginEmpty);
+
             ResultActions resultActions = mockMvc.perform(
-                    get("/users"));
+                    post("/users")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(idNullAndLoginEmptyJSON)
+            );
 
             resultActions.andExpect(status().isOk());
             String contentAsString = resultActions.andReturn().getResponse().getContentAsString();
@@ -458,9 +471,12 @@ class ApplicationControllerIntegrationTest {
         @Test
         @Order(3)
         void findAllAccountsOfUser_Success_LoginNotExists() throws Exception {
+            String idNullAndLoginNotExistsJSON = objectMapper.writeValueAsString(idNullAndLoginNotExists);
+
             ResultActions resultActions = mockMvc.perform(
-                    get("/users")
-                            .param("login", loginNotExists)
+                    post("/users")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(idNullAndLoginNotExistsJSON)
             );
 
             resultActions.andExpect(status().isOk());

@@ -7,6 +7,7 @@ import com.raiffeisen.banking.exception.*;
 import com.raiffeisen.banking.model.AccountDTO;
 import com.raiffeisen.banking.model.ChangeBalanceDTO;
 import com.raiffeisen.banking.model.NewAccountDTO;
+import com.raiffeisen.banking.model.UserSearchFilter;
 import com.raiffeisen.banking.service.AccountService;
 import com.raiffeisen.banking.service.UserService;
 import org.junit.jupiter.api.*;
@@ -274,32 +275,35 @@ class ApplicationControllerUnitTest {
         String loginExists = "loginExists";
         String loginNotExists = "loginNotExists";
         String loginEmpty = "loginEmpty";
+        UserSearchFilter userSearchFilterLoginExists = new UserSearchFilter(null, loginExists);
+        UserSearchFilter userSearchFilterLoginNotExists = new UserSearchFilter(null, loginNotExists);
+        UserSearchFilter userSearchFilterLoginEmpty = new UserSearchFilter(null, loginEmpty);
 
         @Test
         void findAllAccountsOfUser_Success_LoginExists() {
             AccountDTO expectedAccountDTO = new AccountDTO(existingOpenAccountId, positiveMoneyAmount, existingUserId, accountStatusOpenId);
 
-            when(mockUserService.getAccountInfoByParams(loginExists)).thenReturn(List.of(expectedAccountDTO));
+            when(mockUserService.getAccountInfoByParams(userSearchFilterLoginExists)).thenReturn(List.of(expectedAccountDTO));
 
-            assertEquals(List.of(expectedAccountDTO), applicationController.findAllAccountsOfUser(loginExists));
-            verify(mockUserService, times(1)).getAccountInfoByParams(loginExists);
+            assertEquals(List.of(expectedAccountDTO), applicationController.findAllAccountsOfUser(userSearchFilterLoginExists));
+            verify(mockUserService, times(1)).getAccountInfoByParams(userSearchFilterLoginExists);
         }
 
         @Test
         void findAllAccountsOfUser_Success_LoginEmpty() {
 
-            when(mockUserService.getAccountInfoByParams(loginEmpty)).thenReturn(List.of());
+            when(mockUserService.getAccountInfoByParams(userSearchFilterLoginEmpty)).thenReturn(List.of());
 
-            assertEquals(List.of(), applicationController.findAllAccountsOfUser(loginEmpty));
-            verify(mockUserService, times(1)).getAccountInfoByParams(loginEmpty);
+            assertEquals(List.of(), applicationController.findAllAccountsOfUser(userSearchFilterLoginEmpty));
+            verify(mockUserService, times(1)).getAccountInfoByParams(userSearchFilterLoginEmpty);
         }
 
         @Test
         void findAllAccountsOfUser_Success_LoginNotExists() {
-            when(mockUserService.getAccountInfoByParams(loginNotExists)).thenReturn(List.of());
+            when(mockUserService.getAccountInfoByParams(userSearchFilterLoginNotExists)).thenReturn(List.of());
 
-            assertEquals(List.of(), applicationController.findAllAccountsOfUser(loginNotExists));
-            verify(mockUserService, times(1)).getAccountInfoByParams(loginNotExists);
+            assertEquals(List.of(), applicationController.findAllAccountsOfUser(userSearchFilterLoginNotExists));
+            verify(mockUserService, times(1)).getAccountInfoByParams(userSearchFilterLoginNotExists);
         }
     }
 

@@ -3,6 +3,7 @@ package com.raiffeisen.banking.controller;
 import com.raiffeisen.banking.model.AccountDTO;
 import com.raiffeisen.banking.model.ChangeBalanceDTO;
 import com.raiffeisen.banking.model.NewAccountDTO;
+import com.raiffeisen.banking.model.UserSearchFilter;
 import com.raiffeisen.banking.service.AccountService;
 import com.raiffeisen.banking.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,6 +34,7 @@ public class ApplicationController {
 
     /**
      * Пополнение счета
+     *
      * @param changeBalanceDTO
      * @return AccountDTO with new moneyAmount value
      */
@@ -45,6 +47,7 @@ public class ApplicationController {
 
     /**
      * Снятие со счета
+     *
      * @param changeBalanceDTO
      * @return AccountDTO with new moneyAmount value
      */
@@ -57,6 +60,7 @@ public class ApplicationController {
 
     /**
      * Прлучить информацию по счету
+     *
      * @param userId
      * @param accountId
      * @return AccountDTO
@@ -71,16 +75,17 @@ public class ApplicationController {
     }
 
     /**
-     * Получить инфомацию по счетам на основе каких-то параметров пользователя
-     * Параметры опциональны, без них получим все счета из БД при маппинге users, что очень странно.
-     * @param login
+     * Получить инфомацию по счетам на основе любых параметров пользователя
+     *
+     * @param userSearchFilter
      * @return List of AccountDTO
      */
-    @GetMapping("/users")
+
+    @PostMapping("/users")
     public List<AccountDTO> findAllAccountsOfUser(
-            @RequestParam(required = false, defaultValue = "") String login
+            @RequestBody UserSearchFilter userSearchFilter
     ) {
-        return userService.getAccountInfoByParams(login);
+        return userService.getAccountInfoByParams(userSearchFilter);
     }
 
     // 4.2 Получить инфомацию по счетам на основе каких-то параметров счета
@@ -94,6 +99,7 @@ public class ApplicationController {
 
     /**
      * Открыть счет
+     *
      * @param newAccountDTO
      * @param userId
      * @return AccountDTO of created account
@@ -110,6 +116,7 @@ public class ApplicationController {
     /**
      * Закрыть счет
      * Переменная userId не нужна, но чтобы не хардкодить ее в URL пока оставляю.
+     *
      * @param userId
      * @param accountId
      * @return AccountDTO with new status value
