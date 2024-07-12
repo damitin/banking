@@ -1,6 +1,6 @@
 package com.raiffeisen.banking.model;
 
-import com.raiffeisen.banking.entity.AccountStatus;
+import com.raiffeisen.banking.enm.CODE;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -33,6 +33,6 @@ public class AccountSearchFilter {
     /**
      * Active or not
      */
-    private final AccountStatus.CODE statusCode;
+    private final CODE statusCode;
 
 }

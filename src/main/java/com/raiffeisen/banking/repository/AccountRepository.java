@@ -1,14 +1,12 @@
 package com.raiffeisen.banking.repository;
 
+import com.raiffeisen.banking.enm.CODE;
 import com.raiffeisen.banking.entity.Account;
-import com.raiffeisen.banking.entity.AccountStatus;
-import com.raiffeisen.banking.model.AccountSearchFilter;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.List;
 
 public interface AccountRepository extends JpaRepository<Account, Integer> {
@@ -29,6 +27,6 @@ public interface AccountRepository extends JpaRepository<Account, Integer> {
             @Param(value = "moneyAmountMin") Integer moneyAmountMin,
             @Param(value = "moneyAmountMax") Integer moneyAmountMax,
             @Param(value = "userId") Integer userId,
-            @Param(value = "statusCode") AccountStatus.CODE statusCode
+            @Param(value = "statusCode") CODE statusCode
             );
 }

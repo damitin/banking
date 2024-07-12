@@ -1,5 +1,6 @@
 package com.raiffeisen.banking.entity;
 
+import com.raiffeisen.banking.enm.CODE;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -24,11 +25,6 @@ public class AccountStatus {
     @Column(name = "description")
     private String description;
 
-    public enum CODE {
-        OPEN,
-        CLOSED
-    }
-
     public int getId() {
         return id;
     }
@@ -42,7 +38,7 @@ public class AccountStatus {
     }
 
     public boolean isClosed() {
-        return this.code == AccountStatus.CODE.CLOSED;
+        return this.code == CODE.CLOSED;
     }
 
     @Override

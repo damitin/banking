@@ -1,5 +1,6 @@
 package com.raiffeisen.banking.service.impl;
 
+import com.raiffeisen.banking.enm.CODE;
 import com.raiffeisen.banking.entity.Account;
 import com.raiffeisen.banking.entity.AccountStatus;
 import com.raiffeisen.banking.exception.AccountAlreadyClosedException;
@@ -106,7 +107,7 @@ public class AccountServiceImpl implements AccountService {
         if (accountToClose.isClosed()) throw new AccountAlreadyClosedException(accountId);
         if (!accountToClose.canBeClosed()) throw new AccountCanNotBeClosedException(accountId);
 
-        AccountStatus status = accountStatusRepository.findByCode(AccountStatus.CODE.CLOSED);
+        AccountStatus status = accountStatusRepository.findByCode(CODE.CLOSED);
         accountToClose.setStatus(status);
         AccountDTO closedAccountDTO = Mapper.toAccountDTO(accountRepository.save(accountToClose));
 
@@ -127,7 +128,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     private Account save(Account newAccount) {
-        newAccount.setStatus(accountStatusRepository.findByCode(AccountStatus.CODE.OPEN));
+        newAccount.setStatus(accountStatusRepository.findByCode(CODE.OPEN));
         return accountRepository.saveAndFlush(newAccount);
     }
 }

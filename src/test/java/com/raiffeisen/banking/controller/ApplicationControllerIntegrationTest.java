@@ -1,8 +1,8 @@
 package com.raiffeisen.banking.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.raiffeisen.banking.enm.CODE;
 import com.raiffeisen.banking.entity.Account;
-import com.raiffeisen.banking.entity.AccountStatus;
 import com.raiffeisen.banking.entity.User;
 import com.raiffeisen.banking.exception.*;
 import com.raiffeisen.banking.model.ChangeBalanceDTO;
@@ -117,7 +117,7 @@ class ApplicationControllerIntegrationTest {
         @Test
         @Order(1)
         void closeAccount_Success() throws Exception {
-            Account accountToClose = new Account(new BigDecimal(100), 1, accountStatusRepository.findByCode(AccountStatus.CODE.OPEN));
+            Account accountToClose = new Account(new BigDecimal(100), 1, accountStatusRepository.findByCode(CODE.OPEN));
             accountRepository.saveAndFlush(accountToClose);
 
             ResultActions resultActions = mockMvc.perform(
@@ -159,7 +159,7 @@ class ApplicationControllerIntegrationTest {
         @Order(4)
         void closeAccount_Fail_AccountCanNotBeClosed() throws Exception {
             Account accountToClose = accountRepository.findById(2).orElseThrow();
-            accountToClose.setStatus(accountStatusRepository.findByCode(AccountStatus.CODE.OPEN));
+            accountToClose.setStatus(accountStatusRepository.findByCode(CODE.OPEN));
             accountToClose.setMoneyAmount(new BigDecimal(-100));
             accountRepository.saveAndFlush(accountToClose);
 
@@ -181,7 +181,7 @@ class ApplicationControllerIntegrationTest {
         @Test
         @Order(1)
         void depositAccount_Success() throws Exception {
-            Account accountToDeposit = new Account(new BigDecimal(100), 1, accountStatusRepository.findByCode(AccountStatus.CODE.OPEN));
+            Account accountToDeposit = new Account(new BigDecimal(100), 1, accountStatusRepository.findByCode(CODE.OPEN));
             accountRepository.saveAndFlush(accountToDeposit);
 
             ChangeBalanceDTO changeBalanceDTO = new ChangeBalanceDTO(idOfAccountToDeposit, new BigDecimal(10));
@@ -201,7 +201,7 @@ class ApplicationControllerIntegrationTest {
         @Test
         @Order(2)
         void depositAccount_Fail_DepositOrWithdrawalNotPositiveValueException() throws Exception {
-            Account accountToDeposit = new Account(new BigDecimal(100), 1, accountStatusRepository.findByCode(AccountStatus.CODE.OPEN));
+            Account accountToDeposit = new Account(new BigDecimal(100), 1, accountStatusRepository.findByCode(CODE.OPEN));
             accountRepository.saveAndFlush(accountToDeposit);
             BigDecimal moneyDelta = new BigDecimal(-10);
 
@@ -222,7 +222,7 @@ class ApplicationControllerIntegrationTest {
         @Test
         @Order(3)
         void depositAccount_Fail_AccountNotFoundException() throws Exception {
-            Account accountToDeposit = new Account(new BigDecimal(100), 1, accountStatusRepository.findByCode(AccountStatus.CODE.OPEN));
+            Account accountToDeposit = new Account(new BigDecimal(100), 1, accountStatusRepository.findByCode(CODE.OPEN));
             accountRepository.saveAndFlush(accountToDeposit);
             BigDecimal moneyDelta = new BigDecimal(10);
             ChangeBalanceDTO changeBalanceDTO = new ChangeBalanceDTO(idOfNonExistedAccount, moneyDelta);
@@ -243,7 +243,7 @@ class ApplicationControllerIntegrationTest {
         @Order(4)
         void depositAccount_Fail_AccountAlreadyClosedException() throws Exception {
             Account accountToDeposit = accountRepository.findById(idOfAccountToDeposit).orElseThrow();
-            accountToDeposit.setStatus(accountStatusRepository.findByCode(AccountStatus.CODE.CLOSED));
+            accountToDeposit.setStatus(accountStatusRepository.findByCode(CODE.CLOSED));
             accountRepository.saveAndFlush(accountToDeposit);
             BigDecimal moneyDelta = new BigDecimal(10);
             ChangeBalanceDTO changeBalanceDTO = new ChangeBalanceDTO(idOfAccountToDeposit, moneyDelta);
@@ -326,7 +326,7 @@ class ApplicationControllerIntegrationTest {
         @Order(4)
         void withdrawAccount_Fail_AccountAlreadyClosedException() throws Exception {
             Account accountToDeposit = accountRepository.findById(idOfAccountToWithdraw).orElseThrow();
-            accountToDeposit.setStatus(accountStatusRepository.findByCode(AccountStatus.CODE.CLOSED));
+            accountToDeposit.setStatus(accountStatusRepository.findByCode(CODE.CLOSED));
             accountRepository.saveAndFlush(accountToDeposit);
             BigDecimal moneyDelta = new BigDecimal(10);
             ChangeBalanceDTO changeBalanceDTO = new ChangeBalanceDTO(idOfAccountToWithdraw, moneyDelta);
@@ -347,7 +347,7 @@ class ApplicationControllerIntegrationTest {
         @Order(5)
         void withdrawAccount_Fail_NotEnoughMoneyException() throws Exception {
             Account accountToDeposit = accountRepository.findById(idOfAccountToWithdraw).orElseThrow();
-            accountToDeposit.setStatus(accountStatusRepository.findByCode(AccountStatus.CODE.OPEN));
+            accountToDeposit.setStatus(accountStatusRepository.findByCode(CODE.OPEN));
             accountRepository.saveAndFlush(accountToDeposit);
             BigDecimal moneyDelta = new BigDecimal(10000);
             ChangeBalanceDTO changeBalanceDTO = new ChangeBalanceDTO(idOfAccountToWithdraw, moneyDelta);
