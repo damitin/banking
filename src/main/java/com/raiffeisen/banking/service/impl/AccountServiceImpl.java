@@ -8,6 +8,7 @@ import com.raiffeisen.banking.exception.AccountNotFoundException;
 import com.raiffeisen.banking.exception.NotEnoughMoneyException;
 import com.raiffeisen.banking.kafka.KafkaProducer;
 import com.raiffeisen.banking.model.AccountDTO;
+import com.raiffeisen.banking.model.AccountSearchFilter;
 import com.raiffeisen.banking.model.ChangeBalanceDTO;
 import com.raiffeisen.banking.model.NewAccountDTO;
 import com.raiffeisen.banking.repository.AccountRepository;
@@ -37,6 +38,21 @@ public class AccountServiceImpl implements AccountService {
     public List<AccountDTO> findAccountsByMoneyAmountGreaterThan(BigDecimal moneyAmount) {
         return accountRepository
                 .findAccountsByMoneyAmountGreaterThan(moneyAmount)
+                .stream()
+                .map(Mapper::toAccountDTO)
+                .toList();
+    }
+
+    //TODO удалить старый метод findAccountsByMoneyAmountGreaterThan, тесты адаптировать к новому методу
+    @Override
+    public List<AccountDTO> findAccountsByFilter(AccountSearchFilter accountSearchFilter) {
+        return accountRepository
+                .findAccountsByFilter(
+                        accountSearchFilter.getId(),
+                        accountSearchFilter.getMoneyAmountMin(),
+                        accountSearchFilter.getMoneyAmountMax(),
+                        accountSearchFilter.getUserId(),
+                        accountSearchFilter.getStatusCode())
                 .stream()
                 .map(Mapper::toAccountDTO)
                 .toList();

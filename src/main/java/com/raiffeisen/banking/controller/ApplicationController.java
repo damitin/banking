@@ -1,9 +1,6 @@
 package com.raiffeisen.banking.controller;
 
-import com.raiffeisen.banking.model.AccountDTO;
-import com.raiffeisen.banking.model.ChangeBalanceDTO;
-import com.raiffeisen.banking.model.NewAccountDTO;
-import com.raiffeisen.banking.model.UserSearchFilter;
+import com.raiffeisen.banking.model.*;
 import com.raiffeisen.banking.service.AccountService;
 import com.raiffeisen.banking.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -86,6 +83,13 @@ public class ApplicationController {
             @RequestBody UserSearchFilter userSearchFilter
     ) {
         return userService.getAccountInfoByParams(userSearchFilter);
+    }
+
+    @PostMapping("/accounts")
+    public List<AccountDTO> findAllAccountsByParams(
+            @RequestBody AccountSearchFilter accountSearchFilter
+    ) {
+        return accountService.findAccountsByFilter(accountSearchFilter);
     }
 
     // 4.2 Получить инфомацию по счетам на основе каких-то параметров счета
