@@ -85,20 +85,17 @@ public class ApplicationController {
         return userService.getAccountInfoByParams(userSearchFilter);
     }
 
+    /**
+     * Получить инфомацию по счетам на основе любых параметров счета
+     *
+     * @param accountSearchFilter
+     * @return
+     */
     @PostMapping("/accounts")
-    public List<AccountDTO> findAllAccountsByParams(
+    public List<AccountDTO> findAccountsByFilter(
             @RequestBody AccountSearchFilter accountSearchFilter
     ) {
         return accountService.findAccountsByFilter(accountSearchFilter);
-    }
-
-    // 4.2 Получить инфомацию по счетам на основе каких-то параметров счета
-    // TODO Пользователя пока хардкожу в URL из-за конфликта маппингов.
-    @GetMapping("/users/5")
-    public List<AccountDTO> findAccountsWithMoneyAmountGreaterThan(
-            @RequestParam(required = false) BigDecimal moneyAmount
-    ) {
-        return accountService.findAccountsByMoneyAmountGreaterThan(moneyAmount);
     }
 
     /**

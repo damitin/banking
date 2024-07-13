@@ -10,7 +10,6 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public interface AccountRepository extends JpaRepository<Account, Integer> {
-    List<Account> findAccountsByMoneyAmountGreaterThan(BigDecimal moneyAmount);
 
     @Query("""
             FROM Account a

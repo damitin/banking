@@ -5,6 +5,7 @@ import com.raiffeisen.banking.enm.CODE;
 import com.raiffeisen.banking.entity.Account;
 import com.raiffeisen.banking.entity.User;
 import com.raiffeisen.banking.exception.*;
+import com.raiffeisen.banking.model.AccountSearchFilter;
 import com.raiffeisen.banking.model.ChangeBalanceDTO;
 import com.raiffeisen.banking.model.NewAccountDTO;
 import com.raiffeisen.banking.model.UserSearchFilter;
@@ -368,51 +369,85 @@ class ApplicationControllerIntegrationTest {
     @Nested
     @Order(5)
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-    class GetAccountInfoTests {
+    class FindAccountsByFilterTests {
 
         Integer existingUserId = 1;
         Integer nonExistingUserId = 999;
         Integer existingAccountId = 1;
         Integer nonExistingAccountId = 999;
+        Integer minMoneyAmount = 0;
+        Integer maxMoneyAmount = 10;
+
+        AccountSearchFilter allParametersSearchFilter = AccountSearchFilter.builder()
+                .id(existingAccountId)
+                .userId(existingUserId)
+                .moneyAmountMin(minMoneyAmount)
+                .moneyAmountMax(maxMoneyAmount)
+                .statusCode(CODE.OPEN)
+                .build();
+
+        AccountSearchFilter oneParameterSearchFilter = AccountSearchFilter.builder()
+                .statusCode(CODE.CLOSED)
+                .build();
+
+        AccountSearchFilter twoParametersAccountSearchFilter = AccountSearchFilter.builder()
+                .id(existingAccountId)
+                .userId(nonExistingUserId)
+                .build();
 
         @Test
         @Order(1)
-        void getAccountInfo_Success() throws Exception {
+        void findAccountsByFilter_Success_AllParameters() throws Exception {
+            String allParametersSearchFilterJSON = objectMapper.writeValueAsString(allParametersSearchFilter);
+
             ResultActions resultActions = mockMvc.perform(
-                    get("/users/%s/accounts/%s".formatted(existingUserId, existingAccountId)));
+                    post("/accounts")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(allParametersSearchFilterJSON)
+            );
 
             resultActions.andExpect(status().isOk());
             String contentAsString = resultActions.andReturn().getResponse().getContentAsString();
-            assertEquals("{\"id\":%s,\"moneyAmount\":5,\"userId\":%s,\"accountStatus\":1}".formatted(existingUserId, existingAccountId), contentAsString);
+            assertEquals("[{\"id\":%s,\"moneyAmount\":5,\"userId\":%s,\"accountStatus\":1}]".formatted(existingUserId, existingAccountId), contentAsString);
         }
 
         @Test
         @Order(2)
-        void getAccountInfo_UserNotFoundException() throws Exception {
-            ResultActions resultActions = mockMvc.perform(
-                    get("/users/%s/accounts/%s".formatted(nonExistingUserId, existingAccountId)));
+        void findAccountsByFilter_Success_OneParameter() throws Exception {
+            String oneParameterSearchFilterJSON = objectMapper.writeValueAsString(oneParameterSearchFilter);
 
-            resultActions.andExpect(status().isNotFound());
-            resultActions.andExpect(result -> assertTrue(result.getResolvedException() instanceof UserNotFoundException));
-            resultActions.andExpect(result -> assertEquals("There is no User with ID = %s in database".formatted(nonExistingUserId), result.getResolvedException().getMessage()));
+            ResultActions resultActions = mockMvc.perform(
+                    post("/accounts")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(oneParameterSearchFilterJSON)
+            );
+
+            resultActions.andExpect(status().isOk());
+            String contentAsString = resultActions.andReturn().getResponse().getContentAsString();
+            assertEquals("[{\"id\":3,\"moneyAmount\":110,\"userId\":1,\"accountStatus\":2}]", contentAsString);
         }
 
         @Test
         @Order(3)
-        void getAccountInfo_AccountNotFoundException() throws Exception {
-            ResultActions resultActions = mockMvc.perform(
-                    get("/users/%s/accounts/%s".formatted(existingUserId, nonExistingAccountId)));
+        void findAccountsByFilter_Fail_AllParameters() throws Exception {
+            String twoParametersAccountSearchFilterJSON = objectMapper.writeValueAsString(twoParametersAccountSearchFilter);
 
-            resultActions.andExpect(status().isNotFound());
-            resultActions.andExpect(result -> assertTrue(result.getResolvedException() instanceof AccountNotFoundException));
-            resultActions.andExpect(result -> assertEquals("There is no Account with ID = %s in database".formatted(nonExistingAccountId), result.getResolvedException().getMessage()));
+            ResultActions resultActions = mockMvc.perform(
+                    post("/accounts")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(twoParametersAccountSearchFilterJSON)
+            );
+
+            resultActions.andExpect(status().isOk());
+            String contentAsString = resultActions.andReturn().getResponse().getContentAsString();
+            assertEquals("[]", contentAsString);
         }
     }
 
     @Nested
     @Order(6)
     @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-    class FindAllAccountsOfUser {
+    class FindAllAccountsOfUserTests {
         String loginExists = "aA";
         String loginNotExists = "aAQWE";
         String loginEmpty = "";
@@ -477,41 +512,6 @@ class ApplicationControllerIntegrationTest {
                     post("/users")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(idNullAndLoginNotExistsJSON)
-            );
-
-            resultActions.andExpect(status().isOk());
-            String contentAsString = resultActions.andReturn().getResponse().getContentAsString();
-            assertEquals("[]", contentAsString);
-        }
-    }
-
-    @Nested
-    @Order(7)
-    @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-    class FindAccountsWithMoneyAmountGreaterThan {
-
-        Integer moneyAmountHasGreaterValuesInDatabase = 100;
-        Integer moneyAmountHasNoGreaterValuesInDatabase = 1000;
-
-        @Test
-        @Order(1)
-        void findAccountsWithMoneyAmountGreaterThan_Success_AccountsExist() throws Exception {
-            ResultActions resultActions = mockMvc.perform(
-                    get("/users/5")
-                            .param("moneyAmount", moneyAmountHasGreaterValuesInDatabase.toString())
-            );
-
-            resultActions.andExpect(status().isOk());
-            String contentAsString = resultActions.andReturn().getResponse().getContentAsString();
-            assertEquals("[{\"id\":3,\"moneyAmount\":110,\"userId\":1,\"accountStatus\":2}]", contentAsString);
-        }
-
-        @Test
-        @Order(2)
-        void findAccountsWithMoneyAmountGreaterThan_Success_AccountsNotExist() throws Exception {
-            ResultActions resultActions = mockMvc.perform(
-                    get("/users/5")
-                            .param("moneyAmount", moneyAmountHasNoGreaterValuesInDatabase.toString())
             );
 
             resultActions.andExpect(status().isOk());

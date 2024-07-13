@@ -7,8 +7,6 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public interface AccountService {
-    List<AccountDTO> findAccountsByMoneyAmountGreaterThan(BigDecimal moneyAmount);
-
     AccountDTO depositAccount(ChangeBalanceDTO changeBalanceDTO);
 
     AccountDTO withdrawAccount(ChangeBalanceDTO changeBalanceDTO);

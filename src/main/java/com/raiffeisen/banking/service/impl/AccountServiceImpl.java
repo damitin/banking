@@ -35,17 +35,6 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    @Transactional
-    public List<AccountDTO> findAccountsByMoneyAmountGreaterThan(BigDecimal moneyAmount) {
-        return accountRepository
-                .findAccountsByMoneyAmountGreaterThan(moneyAmount)
-                .stream()
-                .map(Mapper::toAccountDTO)
-                .toList();
-    }
-
-    //TODO удалить старый метод findAccountsByMoneyAmountGreaterThan, тесты адаптировать к новому методу
-    @Override
     public List<AccountDTO> findAccountsByFilter(AccountSearchFilter accountSearchFilter) {
         return accountRepository
                 .findAccountsByFilter(

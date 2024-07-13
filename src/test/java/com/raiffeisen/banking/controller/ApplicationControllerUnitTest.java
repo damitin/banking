@@ -1,13 +1,11 @@
 package com.raiffeisen.banking.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.raiffeisen.banking.enm.CODE;
 import com.raiffeisen.banking.entity.Account;
 import com.raiffeisen.banking.entity.AccountStatus;
 import com.raiffeisen.banking.exception.*;
-import com.raiffeisen.banking.model.AccountDTO;
-import com.raiffeisen.banking.model.ChangeBalanceDTO;
-import com.raiffeisen.banking.model.NewAccountDTO;
-import com.raiffeisen.banking.model.UserSearchFilter;
+import com.raiffeisen.banking.model.*;
 import com.raiffeisen.banking.service.AccountService;
 import com.raiffeisen.banking.service.UserService;
 import org.junit.jupiter.api.*;
@@ -52,6 +50,8 @@ class ApplicationControllerUnitTest {
     Integer existingClosedAccountId = 2;
     Integer existingNegativeMoneyAmountAccountId = 3;
     Integer nonExistingAccountId = 999;
+
+    Integer minMoneyAmount = 10;
 
     BigDecimal positiveMoneyAmount = new BigDecimal(100.00);
 
@@ -308,24 +308,35 @@ class ApplicationControllerUnitTest {
     }
 
     @Nested
-    class FindAccountsWithMoneyAmountGreaterThan {
+    class findAllAccountsByParams {
 
         @Test
-        void findAccountsWithMoneyAmountGreaterThan_Success_AccountsExist() {
+        void findAccountsByFilter_Success_AllParameters() {
+            AccountSearchFilter accountSearchFilter = AccountSearchFilter.builder()
+                    .id(existingOpenAccountId)
+                    .moneyAmountMin(minMoneyAmount)
+                    .userId(existingUserId)
+                    .statusCode(CODE.OPEN)
+                    .build();
+
             AccountDTO expectedAccountDTO = new AccountDTO(existingOpenAccountId, positiveMoneyAmount, existingUserId, accountStatusOpenId);
 
-            when(mockAccountService.findAccountsByMoneyAmountGreaterThan(positiveMoneyDelta)).thenReturn(List.of(expectedAccountDTO));
+            when(mockAccountService.findAccountsByFilter(accountSearchFilter)).thenReturn(List.of(expectedAccountDTO));
 
-            assertEquals(List.of(expectedAccountDTO), applicationController.findAccountsWithMoneyAmountGreaterThan(positiveMoneyDelta));
-            verify(mockAccountService, times(1)).findAccountsByMoneyAmountGreaterThan(positiveMoneyDelta);
+            assertEquals(List.of(expectedAccountDTO), applicationController.findAccountsByFilter(accountSearchFilter));
+            verify(mockAccountService, times(1)).findAccountsByFilter(accountSearchFilter);
         }
 
         @Test
-        void findAccountsWithMoneyAmountGreaterThan_Success_AccountsNotExist() {
-            when(mockAccountService.findAccountsByMoneyAmountGreaterThan(veryBigMoneyDelta)).thenReturn(List.of());
+        void findAccountsByFilter_Success_OneParameter() {
+            AccountSearchFilter accountSearchFilter = AccountSearchFilter.builder()
+                    .id(nonExistingAccountId)
+                    .build();
 
-            assertEquals(List.of(), applicationController.findAccountsWithMoneyAmountGreaterThan(veryBigMoneyDelta));
-            verify(mockAccountService, times(1)).findAccountsByMoneyAmountGreaterThan(veryBigMoneyDelta);
+            when(mockAccountService.findAccountsByFilter(accountSearchFilter)).thenReturn(List.of());
+
+            assertEquals(List.of(), applicationController.findAccountsByFilter(accountSearchFilter));
+            verify(mockAccountService, times(1)).findAccountsByFilter(accountSearchFilter);
         }
     }
 }
