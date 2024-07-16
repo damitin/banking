@@ -64,6 +64,15 @@ bitnami/kafka:latest
 ```
 ./mvnw clean package
 ```
+## Запуск приложения
+Профиль по умолчанию
+```
+java -jar banking-0.0.1-SNAPSHOT.jar
+```
+Или с выбором профиля dev/prod
+```
+java -jar banking-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
+```
 
 ## Докеризация приложения
 В корне проекта выполнить
