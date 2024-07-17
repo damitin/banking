@@ -36,7 +36,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public List<AccountDTO> findAccountsByFilter(AccountSearchFilter accountSearchFilter) {
         return accountRepository
-                .findAccountsByFilter(
+                .findAccountsByFilterOrderById(
                         accountSearchFilter.getId(),
                         accountSearchFilter.getMoneyAmountMin(),
                         accountSearchFilter.getMoneyAmountMax(),

@@ -20,7 +20,7 @@ public interface AccountRepository extends JpaRepository<Account, Integer> {
                 AND (:statusCode IS NULL OR a.status.code = :statusCode)
                 
             """)
-    List<Account> findAccountsByFilter(
+    List<Account> findAccountsByFilterOrderById(
             @Param(value = "id") Integer id,
             @Param(value = "moneyAmountMin") Integer moneyAmountMin,
             @Param(value = "moneyAmountMax") Integer moneyAmountMax,
