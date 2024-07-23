@@ -32,6 +32,9 @@ public class KafkaConfig {
     @Value("${spring.kafka.producer.properties.retry.backoff.ms}")
     private String retryBackoffMs;
 
+    @Value("${spring.kafka.producer.properties.enable.idempotence}")
+    private String enableIdempotence;
+
     Map<String, Object> producerConfigs() {
         Map<String, Object> config = new HashMap<>();
 
@@ -40,6 +43,7 @@ public class KafkaConfig {
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, valueSerializer);
         config.put(ProducerConfig.RETRIES_CONFIG, retries);
         config.put(ProducerConfig.RETRY_BACKOFF_MS_CONFIG, retryBackoffMs);
+        config.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, enableIdempotence);
 
         return config;
     }
