@@ -24,7 +24,7 @@ _Плюс накинул некоторую бизнес логику_
 6. Юнит-тесты JUnit Jupiter API + Mockito. com/bankname/banking/controller/ApplicationControllerUnitTest.java
 7. Интеграционные тесты com/bankname/banking/controller/ApplicationControllerIntegrationTest.java
 8. AOP (логирование - явно, глобальная обработка исключений и транзакции не явно)
-9. Логирование slf4j
+9. Логирование slf4j, datasource-proxy (для перехвата запросов к БД с подстановкой значений параметров)
 10. Spring Profiles. Смотреть раздел "Запуск приложения"
 11. Kafka в качестве брокера сообщений между данным сервисом и сервисом нотификации https://github.com/damitin/EmailNotificationMicroservice
 12. Swagger. Смотреть раздел "Swagger URL"
