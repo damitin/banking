@@ -54,6 +54,7 @@ mvn clean package -DskipTests
 ```
 docker-compose up -d
 ```
+После внесения изменений в приложение, при повторной попытке поднять в докере, нужно удалить контейнер (Containers) "app" в стеке "banking_all_in_one_stack" (можно удалить весь стек), а затем образ (Images) "banking". Далее выполнить package.
 ## Запуск приложения
 Профиль по умолчанию
 ```
@@ -63,13 +64,6 @@ java -jar banking-0.0.1-SNAPSHOT.jar
 ```
 java -jar banking-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
 ```
-
-## Докеризация приложения
-В корне проекта выполнить
-```
-docker-compose up -d
-```
-После внесения изменений в приложение, при повторной попытке поднять в докере, нужно удалить контейнер (Containers) "app" в стеке "banking_all_in_one_stack" (можно удалить весь стек), а затем образ (Images) "banking". Далее выполнить package.
 
 ## Тестирование
 При повторной попытке пройти тесты нужно:
