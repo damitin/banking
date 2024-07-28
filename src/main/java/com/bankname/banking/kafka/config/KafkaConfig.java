@@ -62,9 +62,9 @@ public class KafkaConfig {
     NewTopic openAccountTopic() {
         return TopicBuilder
                 .name("open-account-topic")
-                .partitions(1)
-                .replicas(1)
-                .configs(Map.of("min.insync.replicas", "1"))
+                .partitions(3)
+                .replicas(3)
+                .configs(Map.of("min.insync.replicas", "2"))
                 .build();
     }
 
@@ -72,9 +72,9 @@ public class KafkaConfig {
     NewTopic closeAccountTopic() {
         return TopicBuilder
                 .name("close-account-topic")
-                .partitions(1)
-                .replicas(1)
-                .configs(Map.of("min.insync.replicas", "1"))
+                .partitions(3)
+                .replicas(3)
+                .configs(Map.of("min.insync.replicas", "2"))
                 .build();
     }
 
@@ -82,9 +82,9 @@ public class KafkaConfig {
     NewTopic depositAccountTopic() {
         return TopicBuilder
                 .name("deposit-account-topic")
-                .partitions(1)
-                .replicas(1)
-                .configs(Map.of("min.insync.replicas", "1"))
+                .partitions(3)
+                .replicas(3)
+                .configs(Map.of("min.insync.replicas", "2"))
                 .build();
     }
 
@@ -92,12 +92,9 @@ public class KafkaConfig {
     NewTopic withdrawAccountTopic() {
         return TopicBuilder
                 .name("withdraw-account-topic")
-                .partitions(1)
-                .replicas(1)
-                .configs(Map.of("min.insync.replicas", "1"))
+                .partitions(3)
+                .replicas(3)
+                .configs(Map.of("min.insync.replicas", "2"))
                 .build();
     }
 }
-//TODO Пока пришлось на локальной машине (MacOS) в /etc/hosts прописать
-// 127.0.0.1 kafka-server
-// Почему-то проброса порта недостаточно. Ошибка "nodename nor servname provided, or not known".

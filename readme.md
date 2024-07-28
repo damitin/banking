@@ -32,32 +32,27 @@ _Плюс накинул некоторую бизнес логику_
 14. Ehcache. Кэш второго уровня для словаря AccountStatus для сокращения числа обращений к БД
 
 
-## Сборка приложения
+## Сборка и запуск приложения
 
-### Развернуть Postgres в контейнере Docker
+### Клонировать репозиторий
+
+### Вариант 1. Приложение запускается из среды разработки, Postgres и Kafka запускаются в Docker.
+Выполнить файл docker-compose-without-java-app.yml из среды разработки или в корне проекта выполнить
 ```
-docker run -d --name postgres -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres
+docker-compose -f docker-compose-without-java-app.yml up -d
 ```
-### Развернуть Kafka в контейнере Docker
+### Вариант 2. Приложение, Postgres и Kafka запускаются в Docker.
+Собрать приложение с тестами (если ранее был выполнен Вариант 1). В корне проекта выполнить
 ```
-docker run -p 9092:9092 -d --name kafka-server --hostname kafka-server \
---network app-tier \
--e KAFKA_CFG_NODE_ID=0 \
--e KAFKA_CFG_PROCESS_ROLES=controller,broker \
--e KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093 \
--e KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT \
--e KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka-server:9093 \
--e KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER \
-bitnami/kafka:latest
+mvn clean package
 ```
-Дополнительно на локальной машине в файл /etc/hosts добавить запись (будет исправлено)
+Или сразу собрать без тестов
 ```
-127.0.0.1 kafka-server
+mvn clean package -DskipTests
 ```
-### Сборка приложения
-Теперь можно запустить сборку приложения. В корне проекта выполнить
+Выполнить файл docker-compose.yml из среды разработки или в корне проекта выполнить
 ```
-./mvnw clean package
+docker-compose up -d
 ```
 ## Запуск приложения
 Профиль по умолчанию
@@ -74,7 +69,7 @@ java -jar banking-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
 ```
 docker-compose up -d
 ```
-При повторной попытке поднять в докере, нужно удалить контейнер "banking".
+После внесения изменений в приложение, при повторной попытке поднять в докере, нужно удалить контейнер (Containers) "app" в стеке "banking_all_in_one_stack" (можно удалить весь стек), а затем образ (Images) "banking". Далее выполнить package.
 
 ## Тестирование
 При повторной попытке пройти тесты нужно:
