@@ -18,4 +18,6 @@ public interface AccountService {
     AccountDTO closeAccount(Integer accountId);
 
     List<AccountDTO> findAccountsByFilter(AccountSearchFilter accountSearchFilter);
+
+    void generateAcocunts(Integer batchCount, Integer batchSize);
 }

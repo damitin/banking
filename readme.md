@@ -30,6 +30,7 @@ _Плюс накинул некоторую бизнес логику_
 12. Swagger. Смотреть раздел "Swagger URL"
 13. Lombok местами
 14. Ehcache. Кэш второго уровня для словаря AccountStatus для сокращения числа обращений к БД
+15. Индексы БД. account: status_id - hash (поиск по точному совпадению), money_amount - btree (диапазоны). user: функциональный индекс lower(login) - gin_trgm.
 
 
 ## Сборка и запуск приложения
@@ -83,6 +84,10 @@ localhost:8080/users?login=a
 ```
 src/main/resources/db/migration/fill/_V20__fill_table_banking.user.sql
 src/main/resources/db/migration/fill/_V21__fill_table_banking.account.sql
+```
+Или использовать генератор
+```
+http://localhost:8080/generator?batchCount=100&batchSize=1000
 ```
 
 Swagger URL:

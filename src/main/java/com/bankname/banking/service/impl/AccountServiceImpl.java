@@ -16,12 +16,17 @@ import com.bankname.banking.repository.AccountRepository;
 import com.bankname.banking.repository.AccountStatusRepository;
 import com.bankname.banking.service.AccountService;
 import com.bankname.banking.utils.Mapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 @Service
+@Slf4j
 public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
     private final AccountStatusRepository accountStatusRepository;
@@ -118,5 +123,25 @@ public class AccountServiceImpl implements AccountService {
     private Account save(Account newAccount) {
         newAccount.setStatus(accountStatusRepository.findByCode(CODE.OPEN));
         return accountRepository.saveAndFlush(newAccount);
+    }
+
+    @Override
+    public void generateAcocunts(Integer batchCount, Integer batchSize) {
+        Random rand = new Random();
+        for (int i = 0; i < batchCount; i++) {
+            List<Account> accounts = new ArrayList<>();
+            for (int j = 0; j < batchSize; j++) {
+                Account account = Account.builder()
+                        .moneyAmount(new BigDecimal(rand.nextInt(1000) + 10))
+                        .userId((i + 1) * (j + 1))
+                        .status( (Math.random() <= 0.5) ? accountStatusRepository.findByCode(CODE.OPEN) : accountStatusRepository.findByCode(CODE.CLOSED))
+                        .build();
+                accounts.add(account);
+            }
+            var startTime = System.currentTimeMillis();
+            accountRepository.saveAll(accounts);
+            var endTime = System.currentTimeMillis();
+            log.info("Saved batch: batchNum={}, dbSavingTimeMS={}", i + 1, endTime - startTime);
+        }
     }
 }

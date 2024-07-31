@@ -9,12 +9,14 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.FetchType;
+import lombok.Builder;
 
 import java.math.BigDecimal;
 import java.util.Objects;
 
 @Entity
 @Table(schema = "banking", name = "account")
+@Builder
 public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,6 +41,13 @@ public class Account {
     }
 
     public Account(BigDecimal moneyAmount, Integer userId, AccountStatus status) {
+        this.moneyAmount = moneyAmount;
+        this.userId = userId;
+        this.status = status;
+    }
+
+    public Account(Integer id, BigDecimal moneyAmount, Integer userId, AccountStatus status) {
+        this.id = id;
         this.moneyAmount = moneyAmount;
         this.userId = userId;
         this.status = status;
